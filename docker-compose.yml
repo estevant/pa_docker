@@ -1,0 +1,48 @@
+services:
+  db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./pa2.sql:/docker-entrypoint-initdb.d/pa2.sql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: pa2
+    networks:
+      - ecodeli-net
+
+  api:
+    image: estevant/api-ecodeli:latest
+    env_file:
+      - ./api-ecodeli/.env
+    depends_on:
+      - db
+    ports:
+      - "8000:80"
+    networks:
+      - ecodeli-net
+
+  site:
+    image: estevant/site-ecodeli:latest
+    ports:
+      - "8080:80"
+    networks:
+      - ecodeli-net
+
+  proxy:
+    image: estevant/pa2-proxy:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - api
+      - site
+    networks:
+      - ecodeli-net
+
+volumes:
+  db_data:
+
+networks:
+  ecodeli-net:
+    driver: bridge
