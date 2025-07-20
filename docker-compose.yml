@@ -14,7 +14,7 @@ services:
   api:
     image: estevant/api-ecodeli:latest
     env_file:
-      - ./api-ecodeli/.env
+      - .env
     depends_on:
       - db
     ports:
